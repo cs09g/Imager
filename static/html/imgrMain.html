@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="/static/external/js/jquery-2.2.4.min.js"></script>
+<script src="/static/external/js/pinterest_grid.js"></script>
+<script src="/static/external/Bootstrap/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="/static/external/Bootstrap/css/bootstrap.min.css">
+
+<style>
+  #pic_container {
+    padding: 5px;
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+  }
+  img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+  }
+  .white-panel {
+    position: absolute;
+    background: white;
+    box-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+    padding: 10px;
+  }
+  .white-panel h1 {
+    font-size: 1em;
+  }
+  .white-panel h1 a {
+    color: #A92733;
+  }
+</style>
+</head>
+<body>
+  <script>
+
+
+  </script>
+<!-- <div
+  class="fb-like"
+  data-share="true"
+  data-width="450"
+  data-show-faces="true">
+</div> -->
+
+<div id="pic_container">
+
+</div>
+
+<!-- <div class="fb-login-button" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="false"></div>
+-->
+
+<script>
+  $(document).ready(function() {
+    $('#pic_container').pinterest_grid({
+      no_columns: 4,
+      padding_x: 10,
+      padding_y: 10,
+      margin_bottom: 50,
+      single_column_breakpoint: 700
+    });
+  });
+</script>
+<script>
+  var login = function(response) {
+    var access_token = '';
+    FB.login(function(response) {
+      if (response.status === 'connected') {
+        access_token = FB.getAuthResponse()['accessToken'];
+        getPhotos(access_token);
+
+      } else if (reponse.status === "not_authorized") {
+
+      } else {
+
+      }
+
+    }, { 
+      scope: 'email, user_birthday, user_location, user_photos' 
+    });
+  }
+
+  var loading = function(data, access_token) {
+    $.ajax({
+      dataType: 'json',
+      url: data,
+      success: function(response) {
+        for (var i = 0, len = response.data.length; i < len; i++) {
+          getImgUrl(response.data[i], access_token);
+        }
+        if (response.paging.next) {
+          nextData = response.paging.next;
+          //loading(response.paging.next, access_token);
+        }
+      }
+    })
+  }
+
+  var getPhotos = function(access_token) {
+    //console.log(access_token);
+    FB.api(
+      '/me/photos/uploaded',
+      'GET',  
+      {
+        access_token: access_token
+      },
+      function(response) {
+        var data = response.data || [];
+        for (var i = 0, len = data.length; i < len; i++) {
+          getImgUrl(data[i], access_token);
+        }
+
+        if (response.paging.next) {
+          nextData = response.paging.next;
+          setLazyLoad(access_token);
+        }
+      }
+    );
+  }
+
+  var getImgUrl = function(data, access_token) {
+    var pane = createImgPane('https://graph.facebook.com/' + data.id + '/picture?access_token=' + access_token);
+
+    if (data.name) {
+      pane.dataToggle = 'tooltip';
+      pane.dataPlacement = 'left';
+      pane.title = data.name;
+    }
+
+    document.getElementById('pic_container').appendChild(pane);
+  }
+
+  var postData, nextData;
+  var setLazyLoad = function(access_token) {
+    return $(window).scroll(function() {
+      if (shouldLoad() && postData != nextData) {
+        postData = nextData; // avoid duplicated request call
+        loading(nextData, access_token);
+      }
+    });
+  }
+
+  var shouldLoad = function() {
+    if($(document).height() - $(window).height() - $(window).scrollTop() < 300) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  var createImgPane = function(url) {
+    var div = document.createElement('div');
+    div.className = 'white-panel';
+
+    //data-toggle="tooltip" data-placement="left" title="Tooltip on left"
+    var img = document.createElement('img');
+    img.src = url;
+
+    div.appendChild(img);
+
+    return div;
+  }
+  
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '582226488627141',
+      xfbml      : true,
+      version    : 'v2.7'
+    });
+
+    login();
+  };
+
+  (function(d, s, id){
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+</body>
+</html>

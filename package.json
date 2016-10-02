@@ -1,0 +1,22 @@
+{
+  "name": "imager",
+  "version": "1.0.0",
+  "description": "Facebook image viewer on google map",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cs09g/Imager.git"
+  },
+  "author": "CSG",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cs09g/Imager/issues"
+  },
+  "homepage": "https://github.com/cs09g/Imager#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}
