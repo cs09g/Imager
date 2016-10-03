@@ -16,9 +16,8 @@ var login = function(response) {
     if (response.status === 'connected') {
       access_token = FB.getAuthResponse()['accessToken'];
       getPhotos(access_token);
-
     } else if (reponse.status === "not_authorized") {
-
+      alert("You're not authorized");
     } else {
 
     }
@@ -28,19 +27,39 @@ var login = function(response) {
   });
 }
 
+var loadImgHasPlace = function(data, access_token) {
+  FB.api(
+    '/' + data.id,
+    {
+      fields: 'place'
+    },
+    function (response) {
+      if (response && !response.error) {
+        /* handle the result */
+        if (response.place) {
+          console.log(response.place);
+          getImgUrl(response, access_token);
+        }
+      }
+    }
+  );
+}
+
 var loading = function(data, access_token) {
   $.ajax({
     dataType: 'json',
     url: data,
     success: function(response) {
-      for (var i = 0, len = response.data.length; i < len; i++) {
-        getImgUrl(response.data[i], access_token);
-      }
-      if (response.paging.next) {
-        nextData = response.paging.next;
+      var data = response.data || [];
+      for (var i = 0, len = data.length; i < len; i++) {
+        loadImgHasPlace(data[i], access_token);
+
+        if (response.paging.next) {
+          nextData = response.paging.next;
         }
       }
-    })
+    }
+  });
 }
 
 var getPhotos = function(access_token) {
@@ -48,19 +67,23 @@ var getPhotos = function(access_token) {
     '/me/photos/uploaded',
     'GET',  
     {
-      access_token: access_token
+      access_token: access_token,
     },
     function(response) {
       var data = response.data || [];
       for (var i = 0, len = data.length; i < len; i++) {
-        getImgUrl(data[i], access_token);
+        loadImgHasPlace(data[i], access_token);
+        
       }
 
       if (response.paging.next) {
         nextData = response.paging.next;
         setLazyLoad(access_token);
+        if (shouldLoad()) {
+          loading(nextData, access_token);
+        }
       }
-    }
+     }
   );
 }
 
@@ -72,8 +95,9 @@ var getImgUrl = function(data, access_token) {
     pane.dataPlacement = 'left';
     pane.title = data.name;
   }
-
+  
   document.getElementById('pic_container').appendChild(pane);
+  
 }
 
 var postData, nextData;
