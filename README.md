@@ -10,3 +10,7 @@
 ```
 node server.js
 ```
+then
+```
+localhost:1337
+```
