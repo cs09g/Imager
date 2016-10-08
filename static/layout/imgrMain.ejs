@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<% include head/common_hd.ejs %>
+		<script src="/extern/js/pinterest_grid.js"></script>
+
+        <style>
+            img {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+            }
+            .white-panel {
+                background: white;
+                box-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+                padding: 10px;
+                /*display: inline-block;
+                margin: 0px 0px 5px 5px;*/
+                position: absolute;
+            }
+            .white-panel h1 {
+                font-size: 1em;
+            }
+            .white-panel h1 a {
+                color: #A92733;
+            }
+            body {
+				padding-top: 55px;
+			}
+			.navbar {
+				top: 0px;
+				position: fixed;
+				width: 100%;
+				background-color: #f8f8f8;
+				border-color: #e7e7e7;
+				z-index: 10000;
+				text-align:right;
+			}
+			#username {
+				position: relative;
+				display: inline-block;
+				right: 5px;
+			}
+			#map_div {
+				position: fixed;
+				right: 0px;
+				width: 40%;
+				height: 100%;
+				display: inline-block;
+
+			}
+			#map {
+				height: 100%;
+				width: 100%;
+
+			}
+			#pic_container {
+                padding: 5px;
+                width: 100%;
+                height: 100%;
+                /*max-width: 100%;
+                width: 100%;*/
+            }
+            #pic_div {
+            	position:fixed;
+            	left: 0px;
+            	height: 100%;
+            	width: 59%;
+            	overflow: scroll;
+            	display: inline-block;
+            }
+            .content {
+            	position: absolute;
+            	width: 100%;
+            	height: 100%;
+            }
+        </style>
+	</head>
+	<body>
+		<div class="navbar">
+			<div id='username'></div>
+			<button class='btn btn-default navbar-btn' id='login' type='button' onclick='checkLoginState()'>Login</button>
+		</div>
+		<div class="content">
+			<div id='pic_div'>
+				<div id='pic_container'></div>
+			</div>
+			<div id="map_div">
+				<div id='map'></div>
+			</div>
+        </div>
+		
+		<script>	
+			var checkLoginState = function() {
+				FB.getLoginStatus(function(response) {
+					statusChangeCallback(response);
+				});
+			}
+
+			// This is called with the results from from FB.getLoginStatus().
+			var statusChangeCallback = function(response) {
+				// The response object is returned with a status field that lets the
+				// app know the current login status of the person.
+				// Full docs on the response object can be found in the documentation
+				// for FB.getLoginStatus().
+
+				if (response.status === 'connected') {
+					// Logged into your app and Facebook.
+					logout();
+				} else if (response.status === 'unknown') {
+					login();
+				}
+			}
+
+			  // Here we run a very simple test of the Graph API after login is
+			  // successful.  See statusChangeCallback() for when this call is made.
+			var login = function() {
+				FB.login(function(response) {
+					console.log(response);
+					if (response.status === 'connected') {
+						var access_token = FB.getAuthResponse()['accessToken'];
+						FB.api('/me', function(response) {
+							$('#username').html('Welcome! ' + response.name);
+						});
+						getPhotos(access_token);
+						initMap();
+						$('#login').html('Logout');
+					} else if (reponse.status === "not_authorized") {
+						alert("You're not authorized");
+					} else {
+
+					}
+
+				}, { 
+					scope: 'email, user_photos' 
+				});		
+
+				
+			}
+
+			var logout = function() {
+				FB.logout(function(response) {
+					$('#login').html('Login');
+					$('#username').html('');
+					$('#pic_container').html('');
+				});
+			}
+
+		 	window.fbAsyncInit = function() {
+			    FB.init({
+			    	appId      : '582226488627141',
+			    	xfbml      : true,
+			    	version    : 'v2.7'
+			    });
+			};
+
+		  	$(document).ready(function() {
+                makePinterestGrid("pic_container", {
+                	no_columns: 2
+                });
+            });
+
+		</script>
+
+		
+	    <script>
+	 		function initMap() {
+				// Create a map object and specify the DOM element for display.
+				var map = new google.maps.Map(document.getElementById('map'), {
+					center: {lat: -34.397, lng: 150.644},
+					scrollwheel: false,
+					zoom: 8
+				});
+			}
+
+	    </script>
+	    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBU8BsgQTbDUOi13nGL8gODzM4VY18sJg8'></script>
+
+		<% include body/common_bd.ejs %>
+	</body>
+</html>
