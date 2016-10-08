@@ -10,23 +10,6 @@ var makePinterestGrid = function(target, options) {
   });
 }
 
-var login = function(response) {
-  var access_token = '';
-  FB.login(function(response) {
-    if (response.status === 'connected') {
-      access_token = FB.getAuthResponse()['accessToken'];
-      getPhotos(access_token);
-    } else if (reponse.status === "not_authorized") {
-      alert("You're not authorized");
-    } else {
-
-    }
-
-  }, { 
-    scope: 'email, user_birthday, user_location, user_photos' 
-  });
-}
-
 var loadImgHasPlace = function(data, access_token) {
   FB.api(
     '/' + data.id,
@@ -37,7 +20,7 @@ var loadImgHasPlace = function(data, access_token) {
       if (response && !response.error) {
         /* handle the result */
         if (response.place) {
-          console.log(response.place);
+          //console.log(response.place);
           getImgUrl(response, access_token);
         }
       }
@@ -131,12 +114,3 @@ var createImgPane = function(url) {
   return div;
 }
 
-window.fbAsyncInit = function() {
-  FB.init({
-    appId      : '582226488627141',
-    xfbml      : true,
-    version    : 'v2.7'
-  });
-
-  login();
-};
