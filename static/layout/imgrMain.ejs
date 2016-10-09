@@ -79,8 +79,10 @@
 				<div id='map'></div>
 			</div>
         </div>
-		
+		<% include body/common_bd.ejs %>
 		<script>	
+			var imager = new Imager();
+
 			var checkLoginState = function() {
 				FB.getLoginStatus(function(response) {
 					statusChangeCallback(response);
@@ -112,7 +114,7 @@
 						FB.api('/me', function(response) {
 							$('#username').html('Welcome! ' + response.name);
 						});
-						getPhotos(access_token);
+						imager.getPhotos(access_token);
 						initMap();
 						$('#login').html('Logout');
 					} else if (reponse.status === "not_authorized") {
@@ -146,7 +148,7 @@
 			};
 
 		  	$(document).ready(function() {
-                makePinterestGrid("pic_container", {
+                imager.makePinterestGrid("pic_container", {
                 	no_columns: 2
                 });
             });
@@ -166,6 +168,13 @@
 				});
 			}
 
+			(function(d, s, id){
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    if (d.getElementById(id)) {return;}
+			    js = d.createElement(s); js.id = id;
+			    js.src = "//connect.facebook.net/en_US/sdk.js";
+			    fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
 	    </script>
 	    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBU8BsgQTbDUOi13nGL8gODzM4VY18sJg8'></script>
 	    <script>
@@ -173,6 +182,6 @@
 	    	$('.content').height($(window).height() - $('.navbar').height() - 5);
 	    	$('#map_div').height($('.content').height());
 	    </script>
-		<% include body/common_bd.ejs %>
+		
 	</body>
 </html>

@@ -1,147 +1,137 @@
 <script>
-(function(d, s, id){
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) {return;}
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/en_US/sdk.js";
-    fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
+(function() {
+    window.Imager = window.Imager || {};
 
-
-var makePinterestGrid = function(target, options) {
-    var options = options || {};
-
-    $('#' + target).pinterest_grid({
-        no_columns: options.no_columns || 4,
-        padding_x: options.padding_x || 10,
-        padding_y: options.padding_y || 10,
-        margin_bottom: options.margin_bottom || 50,
-        single_column_breakpoint: options.single_column_breakpoint || 700
-    });
-}
-
-
-var loadImgHasPlace = function(data, access_token) {
-    FB.api(
-        '/' + data.id,
-        {
-            fields: 'place'
-        },
-        function (response) {
-            if (response && !response.error) {
-                /* handle the result */
-                if (response.place) {
-                    placeMarker(map, response.place.location, response.place.name);
-                    getImgUrl(response, access_token);
-                }
-            }
-        }
-    );
-}
-
-var markers = [];
-var bounds = new google.maps.LatLngBounds();
-var placeMarker = function(map, location, name) {
-    var marker = new google.maps.Marker({
-        map: map,
-        position: {
-            lat: location.latitude,
-            lng: location.longitude
-        },
-        title: name
-    });
-    markers.push(marker);
-
-    // fit map bounds up to markers on the map
-    bounds.extend(marker.getPosition());
-
-    map.fitBounds(bounds);
-}
-
-
-
-var loading = function(data, access_token) {
-    $.ajax({
-        dataType: 'json',
-        url: data,
-        success: function(response) {
-            var data = response.data || [];
-            for (var i = 0, len = data.length; i < len; i++) {
-                loadImgHasPlace(data[i], access_token);
-
-                if (response.paging.next) {
-                    nextData = response.paging.next;
-                }
-            }
-        }
-    });
-}
-
-var getPhotos = function(access_token) {
-    FB.api(
-        '/me/photos/uploaded',
-        'GET',  
-        {
-            access_token: access_token,
-        },
-        function(response) {
-            var data = response.data || [];
-            for (var i = 0, len = data.length; i < len; i++) {
-                loadImgHasPlace(data[i], access_token);
-            }
-
-            if (response.paging.next) {
-                nextData = response.paging.next;
-                setLazyLoad(access_token);
-                if (shouldLoad()) {
-                    loading(nextData, access_token);
-                }
-            }
-        }
-    );
-}
-
-var getImgUrl = function(data, access_token) {
-    var pane = createImgPane('https://graph.facebook.com/' + data.id + '/picture?access_token=' + access_token);
-
-    if (data.name) {
-        pane.dataToggle = 'tooltip';
-        pane.dataPlacement = 'left';
-        pane.title = data.name;
+    Imager = function() {
+        this.postData = null;
+        this.nextData = null;
     }
 
-    document.getElementById('pic_container').appendChild(pane);
-}
+    Imager.prototype = {
+        makePinterestGrid: function(target, options) {
+            var options = options || {};
+            $('#' + target).pinterest_grid({
+                no_columns: options.no_columns || 4,
+                padding_x: options.padding_x || 10,
+                padding_y: options.padding_y || 10,
+                margin_bottom: options.margin_bottom || 50,
+                single_column_breakpoint: options.single_column_breakpoint || 700
+            });
+        },
 
-var postData, nextData;
-var setLazyLoad = function(access_token) {
-    return $('#pic_div').scroll(function() {
-        if (shouldLoad() && postData != nextData) {
-            postData = nextData; // avoid duplicated request call
-            loading(nextData, access_token);
-        }
-    });
-}
+        loadImgHasPlace: function(data, access_token) {
+            var self = this;
+            FB.api(
+                '/' + data.id,
+                {
+                    fields: 'place'
+                },
+                function (response) {
+                    if (response && !response.error) {
+                        /* handle the result */
+                        if (response.place) {
+                            //console.log(response.place);
+                            self.getImgUrl(response, access_token);
+                        }
+                    }
+                }
+            );
+        },
 
-var shouldLoad = function() {
-    if($('#pic_container').height() - $('#pic_div').height() - $('#pic_div').scrollTop() < 300) {
-        return true;
-    } else {
-        return false;
+        loading: function(data, access_token) {
+            var self = this;
+            $.ajax({
+                dataType: 'json',
+                url: data,
+                success: function(response) {
+                    var data = response.data || [];
+                    for (var i = 0, len = data.length; i < len; i++) {
+                        self.loadImgHasPlace(data[i], access_token);
+
+                        if (response.paging.next) {
+                            self.nextData = response.paging.next;
+                        }
+                    }
+                }
+            });
+        },
+
+        getPhotos: function(access_token) {
+            var self = this;
+            FB.api(
+                '/me/photos/uploaded',
+                'GET',  
+                {
+                    access_token: access_token,
+                },
+                function(response) {
+                    var data = response.data || [];
+                    for (var i = 0, len = data.length; i < len; i++) {
+                        self.loadImgHasPlace(data[i], access_token);
+
+                    }
+
+                    if (response.paging.next) {
+                        self.nextData = response.paging.next;
+                        self.setLazyLoad(access_token);
+                        var pic_container = $('#pic_container');
+                        var pic_div = $('#pic_div');
+
+                        if (self.shouldLoad(pic_container.height(), pic_div.height(), pic_div.scrollTop())) {
+                            self.loading(self.nextData, access_token);
+                        }
+                    }
+                }
+            );
+        },
+
+        getImgUrl: function(data, access_token) {
+            var pane = this.createImgPane('https://graph.facebook.com/' + data.id + '/picture?access_token=' + access_token);
+
+            if (data.name) {
+                pane.dataToggle = 'tooltip';
+                pane.dataPlacement = 'left';
+                pane.title = data.name;
+            }
+
+            document.getElementById('pic_container').appendChild(pane);
+
+        },
+
+        
+        setLazyLoad: function(access_token) {
+            var self = this;
+            return $('#pic_div').scroll(function() {
+                var pic_container = $('#pic_container');
+                var pic_div = $('#pic_div');
+                if (self.shouldLoad(pic_container.height(), pic_div.height(), pic_div.scrollTop()) && self.postData != self.nextData) {
+                    self.postData = self.nextData; // avoid duplicated request call
+                    self.loading(self.nextData, access_token);
+                }
+            });
+        },
+
+        shouldLoad: function(pic_container_height, pic_div_height, pic_div_scrollTop) {
+            if(pic_container_height - pic_div_height - pic_div_scrollTop < 300) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
+        createImgPane: function(url) {
+            var div = document.createElement('div');
+            div.className = 'white-panel';
+
+            //data-toggle="tooltip" data-placement="left" title="Tooltip on left"
+            var img = document.createElement('img');
+            img.src = url;
+
+            div.appendChild(img);
+
+            return div;
+        },
     }
-}
-
-var createImgPane = function(url) {
-    var div = document.createElement('div');
-    div.className = 'white-panel';
-
-    //data-toggle="tooltip" data-placement="left" title="Tooltip on left"
-    var img = document.createElement('img');
-    img.src = url;
-
-    div.appendChild(img);
-
-    return div;
-}
+})();
 
 </script>
