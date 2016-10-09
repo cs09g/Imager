@@ -1,9 +1,14 @@
 # Imager
+![Image of Imager](http://i.imgur.com/Oc27oIg.png)
 
-### 1. Displaying pictures from Facebook account --- done
-### 2. Getting place information of the pictures
-### 3. Displaying the pictures on the Google maps
+### 1. FB Login
+### 2. Getting photos from FB account
+### 3. Displaying pictures using pinterest style grid layout
+### 4. Displaying the location on the google map
 ### and more...
+
+#### some of the process here as 'Playing FB API with node js
+https://www.livecoding.tv/cs09g/videos/
 
 <hr>
 ## How to run?
