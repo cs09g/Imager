@@ -45,8 +45,6 @@
 				position: fixed;
 				right: 0px;
 				width: 40%;
-				height: 100%;
-
 			}
 			#map {
 				height: 100%;
@@ -57,8 +55,6 @@
                 padding: 5px;
                 width: 100%;
                 height: 100%;
-                /*max-width: 100%;
-                width: 100%;*/
             }
             #pic_div {
             	position:fixed;
@@ -68,7 +64,6 @@
             	overflow: auto;
             }
             .content {
-            	
             	width: 100%;
             }
         </style>
@@ -167,7 +162,8 @@
 				map = new google.maps.Map(document.getElementById('map'), {
 					center: {lat: -34.397, lng: 150.644},
 					scrollwheel: false,
-					zoom: 8
+					zoom: 8,
+					disableDefaultUI: true
 				});
 			}
 
@@ -175,7 +171,7 @@
 	    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBU8BsgQTbDUOi13nGL8gODzM4VY18sJg8'></script>
 	    <script>
 	    	// style scripts
-	    	$('.content').height($(window).height() - $('.navbar').height());
+	    	$('.content').height($(window).height() - $('.navbar').height() - 5);
 	    	$('#map_div').height($('.content').height());
 	    </script>
 		<% include body/common_bd.ejs %>
