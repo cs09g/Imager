@@ -46,7 +46,6 @@
 				right: 0px;
 				width: 40%;
 				height: 100%;
-				display: inline-block;
 
 			}
 			#map {
@@ -66,13 +65,11 @@
             	left: 0px;
             	height: 100%;
             	width: 59%;
-            	overflow: scroll;
-            	display: inline-block;
+            	overflow: auto;
             }
             .content {
-            	position: absolute;
+            	
             	width: 100%;
-            	height: 100%;
             }
         </style>
 	</head>
@@ -175,7 +172,10 @@
 
 	    </script>
 	    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBU8BsgQTbDUOi13nGL8gODzM4VY18sJg8'></script>
-
+	    <script>
+	    	// style scripts
+	    	$('.content').height($(window).height() - $('.navbar').height());
+	    </script>
 		<% include body/common_bd.ejs %>
 	</body>
 </html>

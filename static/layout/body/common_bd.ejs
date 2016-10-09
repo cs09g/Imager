@@ -95,7 +95,7 @@ var getImgUrl = function(data, access_token) {
 
 var postData, nextData;
 var setLazyLoad = function(access_token) {
-  return $(window).scroll(function() {
+  return $('#pic_div').scroll(function() {
     if (shouldLoad() && postData != nextData) {
       postData = nextData; // avoid duplicated request call
       loading(nextData, access_token);
