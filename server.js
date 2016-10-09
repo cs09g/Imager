@@ -20,17 +20,6 @@ app.get('/', function(req, res) {
 	});
 });
 
-app.post('/imgGrid', function(req, res) {
-    var access_token = req.body && req.body.access_token;
-	res.render(path.join(__dirname, '/static/layout/imgrImgGrid'), {
-		access_token: access_token
-	});
-});
-
-app.get('/imgMap', function(req, res) {
-	res.render(path.join(__dirname, '/static/layout/imgrImgMap'));
-});
-
 app.listen(1337, function () {
 	console.log('Imager listening on port 1337!');
 });
