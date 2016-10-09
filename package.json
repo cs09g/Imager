@@ -1,10 +1,10 @@
 {
   "name": "imager",
   "version": "1.0.0",
-  "description": "Facebook image viewer on google map",
+  "description": "Facebook image viewer with markers on google map",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/jasmine-node spec"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,9 @@
   "dependencies": {
     "ejs": "^2.5.2",
     "ejs-locals": "^1.0.2",
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "jasmine-node": "^1.14.5",
+    "request": "^2.75.0"
   },
   "devDependencies": {
     "jasmine": "^2.5.2"
