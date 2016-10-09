@@ -52,11 +52,7 @@ var placeMarker = function(map, location, name) {
     markers.push(marker);
 
     // fit map bounds up to markers on the map
-    for (var i=0; i<markers.length; i++) {
-        if(markers[i].getVisible()) {
-            bounds.extend( markers[i].getPosition() );
-        }
-    }
+    bounds.extend(marker.getPosition());
 
     map.fitBounds(bounds);
 }
