@@ -30,13 +30,37 @@ var loadImgHasPlace = function(data, access_token) {
       if (response && !response.error) {
         /* handle the result */
         if (response.place) {
-          //console.log(response.place);
-          getImgUrl(response, access_token);
+            placeMarker(map, response.place.location, response.place.name);
+            getImgUrl(response, access_token);
         }
       }
     }
   );
 }
+
+var markers = [];
+var bounds = new google.maps.LatLngBounds();
+var placeMarker = function(map, location, name) {
+    var marker = new google.maps.Marker({
+        map: map,
+        position: {
+            lat: location.latitude,
+            lng: location.longitude
+        },
+        title: name
+    });
+    markers.push(marker);
+
+    // fit map bounds up to markers on the map
+    for (var i=0; i<markers.length; i++) {
+        if(markers[i].getVisible()) {
+            bounds.extend( markers[i].getPosition() );
+        }
+    }
+
+    map.fitBounds(bounds);
+}
+
 
 var loading = function(data, access_token) {
   $.ajax({
