@@ -10,6 +10,14 @@
 #### some of the process here as 'Playing FB API with node js
 https://www.livecoding.tv/cs09g/videos/
 
+
+###
+specs
+* FB API -- me / photos / login / logout
+* Google Map API -- markers / extent bounds
+* UglifyJS2 -- compressing code. uglifying private methods name
+* Jasmine -- testing
+
 <hr>
 ## How to run?
 ```
