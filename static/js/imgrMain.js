@@ -2,9 +2,36 @@
     window.Imager = window.Imager || {};
 
     Imager = function() {
-        this.postData = null;
-        this.nextData = null;
-    }
+        this._postData = null;
+        this._nextData = null;
+        var markers = [];
+		var bounds = null;
+        var map;
+
+        this.setMap = function(m) {
+            map = m;
+        };
+
+        this._getMap = function() {
+            return map;
+        };
+
+		this._getMarkers = function() {
+			return markers;
+		};
+
+		this._addMarker = function(marker) {
+			markers.push(marker);
+		};
+
+        this.initBounds = function(boundObj) {
+            bounds = boundObj;//new google.maps.LatLngBounds();
+        };
+
+		this._getBounds = function() {
+			return bounds;
+		};
+    };
 
     Imager.prototype = {
         makePinterestGrid: function(target, options) {
@@ -18,8 +45,9 @@
             });
         },
 
-        loadImgHasPlace: function(data, access_token) {
+        _loadImgHasPlace: function(data, access_token) {
             var self = this;
+            var map = self._getMap();
             FB.api(
                 '/' + data.id,
                 {
@@ -27,17 +55,19 @@
                 },
                 function (response) {
                     if (response && !response.error) {
+                        var bounds = self._getBounds();
+
                         /* handle the result */
                         if (response.place) {
-                            //console.log(response.place);
-                            self.getImgUrl(response, access_token);
+                            self._placeMarker(map, bounds, response.place.location, response.place.name);
+                            self._getImgUrl(response, access_token);
                         }
                     }
                 }
             );
         },
 
-        loading: function(data, access_token) {
+        _loading: function(data, access_token) {
             var self = this;
             $.ajax({
                 dataType: 'json',
@@ -45,10 +75,10 @@
                 success: function(response) {
                     var data = response.data || [];
                     for (var i = 0, len = data.length; i < len; i++) {
-                        self.loadImgHasPlace(data[i], access_token);
+                        self._loadImgHasPlace(data[i], access_token);
 
                         if (response.paging.next) {
-                            self.nextData = response.paging.next;
+                            self._nextData = response.paging.next;
                         }
                     }
                 }
@@ -66,26 +96,26 @@
                 function(response) {
                     var data = response.data || [];
                     for (var i = 0, len = data.length; i < len; i++) {
-                        self.loadImgHasPlace(data[i], access_token);
+                        self._loadImgHasPlace(data[i], access_token);
 
                     }
 
                     if (response.paging.next) {
-                        self.nextData = response.paging.next;
-                        self.setLazyLoad(access_token);
+                        self._nextData = response.paging.next;
+                        self._setLazyLoad(access_token);
                         var pic_container = $('#pic_container');
                         var pic_div = $('#pic_div');
-                        if (self.shouldLoad(pic_container.height(), pic_div.height(), pic_div.scrollTop())) {
-                            self.loading(self.nextData, access_token);
+                        if (self._shouldLoad(pic_container.height(), pic_div.height(), pic_div.scrollTop())) {
+                            self._loading(self._nextData, access_token);
                         }
                     }
                 }
             );
         },
 
-        getImgUrl: function(data, access_token) {
+        _getImgUrl: function(data, access_token) {
             var self = this;
-            var pane = self.createImgPane('https://graph.facebook.com/' + data.id + '/picture?access_token=' + access_token);
+            var pane = self._createImgPane('https://graph.facebook.com/' + data.id + '/picture?access_token=' + access_token);
 
             if (data.name) {
                 pane.dataToggle = 'tooltip';
@@ -98,19 +128,19 @@
         },
 
         
-        setLazyLoad: function(access_token) {
+        _setLazyLoad: function(access_token) {
             var self = this;
             return $('#pic_div').scroll(function() {
                 var pic_container = $('#pic_container');
                 var pic_div = $('#pic_div');
-                if (self.shouldLoad(pic_container.height(), pic_div.height(), pic_div.scrollTop()) && self.postData != self.nextData) {
-                    self.postData = self.nextData; // avoid duplicated request call
-                    self.loading(self.nextData, access_token);
+                if (self._shouldLoad(pic_container.height(), pic_div.height(), pic_div.scrollTop()) && self._postData != self._nextData) {
+                    self._postData = self._nextData; // avoid duplicated request call
+                    self._loading(self._nextData, access_token);
                 }
             });
         },
 
-        shouldLoad: function(pic_container_height, pic_div_height, pic_div_scrollTop) {
+        _shouldLoad: function(pic_container_height, pic_div_height, pic_div_scrollTop) {
             if(pic_container_height - pic_div_height - pic_div_scrollTop < 300) {
                 return true;
             } else {
@@ -118,7 +148,7 @@
             }
         },
 
-        createImgPane: function(url) {
+        _createImgPane: function(url) {
             var div = document.createElement('div');
             div.className = 'white-panel';
 
@@ -130,5 +160,22 @@
 
             return div;
         },
+
+		_placeMarker: function(map, bounds, location, name) {
+		    var marker = new google.maps.Marker({
+		        map: map,
+		        position: {
+		            lat: location.latitude,
+		            lng: location.longitude
+		        },
+		        title: name
+		    });
+
+		    this._addMarker(marker);
+
+		    // fit map bounds up to markers on the map
+		    bounds.extend(marker.getPosition());
+		    map.fitBounds(bounds);
+		}
     }
 })();
