@@ -79,7 +79,8 @@
 				<div id='map'></div>
 			</div>
         </div>
-		<script src='/js/imgrMain.js'></script>
+		<!-- <script src='/js/imgrMain.js'></script> -->
+		<script src='/release/imgrMain.min.js'></script>
 		<script>	
 			var imager = new Imager();
 
@@ -166,7 +167,11 @@
 					zoom: 8,
 					disableDefaultUI: true
 				});
+
+				imager.setMap(map);
+				imager.initBounds(new google.maps.LatLngBounds());
 			}
+
 
 			(function(d, s, id){
 			    var js, fjs = d.getElementsByTagName(s)[0];
