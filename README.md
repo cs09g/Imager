@@ -16,7 +16,7 @@ specs
 * FB API -- me / photos / login / logout
 * Google Map API -- markers / extent bounds
 * UglifyJS2 -- compressing code. uglifying private methods name
-* Jasmine -- testing
+* Jasmine -- @TODO testing
 
 <hr>
 ## How to run?
